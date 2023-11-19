@@ -1,16 +1,16 @@
 from flask import Flask, jsonify, request
 import requests, sys, json
-application = Flask(__name__)
+app = Flask(__name__)
 a = {}
 
-@application.route("/webhook/", methods=["POST"])
+@app.route("/webhook/", methods=["POST"])
 def webhook():
     global a
     request_data = json.loads(request.get_data())
     a[request_data['user']] = request_data['result']['choices'][0]['message']['content']
     return 'OK'
 
-@application.route("/question", methods=["POST"])
+@app.route("/question", methods=["POST"])
 def get_question():
     global a
     request_data = json.loads(request.get_data())
@@ -28,7 +28,7 @@ def get_question():
         pass
     return jsonify(response)
 
-@application.route("/ans", methods=["POST"])
+@app.route("/ans", methods=["POST"])
 def hello2():
     request_data = json.loads(request.get_data())
     response = { "version": "2.0", "template": { "outputs": [{
