@@ -35,3 +35,4 @@ def hello2():
         "simpleText": {"text": f"답변: {a.get(request_data['userRequest']['user']['id'], '질문을 하신적이 없어보여요. 질문부터 해주세요')}"}
     }]}}
     return jsonify(response)
+
