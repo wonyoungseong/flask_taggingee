@@ -70,9 +70,18 @@ a = {}
 @app.route("/webhook/", methods=["POST"])
 def webhook():
     global a
-    request_data = json.loads(request.get_data())
-    a[request_data['user']] = request_data['result']['choices'][0]['message']['content']
-    return 'OK'
+    try:
+        request_data = json.loads(request.get_data())
+        user = request_data.get('user')
+        if user:
+            a[user] = request_data.get('result', {}).get('choices', [{}])[0].get('message', {}).get('content', '')
+        return 'OK'
+    except json.JSONDecodeError:
+        return jsonify({"error": "Invalid JSON format"}), 400
+    except KeyError:
+        return jsonify({"error": "Required data missing"}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route("/question", methods=["POST"])
@@ -96,8 +105,26 @@ def get_question():
 
 @app.route("/ans", methods=["POST"])
 def hello2():
-    request_data = json.loads(request.get_data())
-    response = {"version": "2.0", "template": {"outputs": [{
-        "simpleText": {"text": f"답변: {a.get(request_data['userRequest']['user']['id'], '질문을 하신적이 없어보여요. 질문부터 해주세요')}"}
-    }]}}
-    return jsonify(response)
+    try:
+        request_data = json.loads(request.get_data())
+        user_id = request_data.get('userRequest', {}).get('user', {}).get('id')
+        response_text = a.get(user_id, '질문을 하신적이 없어보여요. 질문부터 해주세요')
+        response = {
+            "version": "2.0",
+            "template": {
+                "outputs": [
+                    {
+                        "simpleText": {
+                            "text": f"답변: {response_text}"
+                        }
+                    }
+                ]
+            }
+        }
+        return jsonify(response)
+    except json.JSONDecodeError:
+        return jsonify({"error": "Invalid JSON format"}), 400
+    except KeyError:
+        return jsonify({"error": "Required data missing"}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
