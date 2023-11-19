@@ -80,26 +80,33 @@ def get_question():
     global a
     if request.method == "GET":
         # GET 요청에 대한 처리
-        # 예를 들어, 쿼리 매개변수에서 질문을 가져오는 경우
         question = request.args.get('question')
-        # 적절한 응답 반환
         return jsonify({"message": f"GET 요청 받음, 질문: {question}"})
-    else:
-        # POST 요청에 대한 기존 처리
-        request_data = json.loads(request.get_data())
-        response = {"version": "2.0", "template": {"outputs": [{
-            "simpleText": {"text": f"질문을 받았습니다. AI에게 물어보고 올께요!: {request_data['action']['params']['question']}"}
-        }]}}
-        a[request_data['userRequest']['user']['id']] = '아직 AI가 처리중이에요'
+    elif request.method == "POST":
         try:
-            api = requests.post('https://api.asyncia.com/v1/api/request/', json={
-                "apikey": "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",
-                "messages": [{"role": "user", "content": request_data['action']['params']['question']}],
-                "userdata": [["user", request_data['userRequest']['user']['id']]]},
-                headers={"apikey": "A0.cd6a467e-67e7-47a7-87fa-6524ac0fee92._lE5wodHE3xjzO0EMcoS8PV1732wXG-lvg"}, timeout=0.3)
-        except requests.exceptions.ReadTimeout:
-            pass
-        return jsonify(response)
+            request_data = json.loads(request.get_data())
+            # POST 요청 처리 로직
+            # ...
+
+            # 외부 API 요청
+            try:
+                api_response = requests.post('https://api.asyncia.com/v1/api/request/', json={
+                    # API 요청 관련 데이터
+                }, timeout=5)  # 타임아웃 값을 조정
+                # API 응답 처리 로직
+                # ...
+            except requests.exceptions.RequestException as e:
+                # 외부 API 요청 오류 처리
+                return jsonify({"error": "External API request failed"}), 500
+
+            # 성공적인 응답 반환
+            return jsonify({"message": "Success"})
+        except json.JSONDecodeError:
+            # JSON 파싱 오류 처리
+            return jsonify({"error": "Invalid JSON format"}), 400
+        except Exception as e:
+            # 기타 예외 처리
+            return jsonify({"error": "An error occurred"}), 500
 
 
 @app.route("/ans", methods=["GET", "POST"])
@@ -138,3 +145,7 @@ def hello2():
             }
         }
         return jsonify(response)
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0")
