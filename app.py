@@ -3,12 +3,12 @@ import sys
 import json
 import datetime
 
-application = Flask(__name__)
+app = Flask(__name__)
 
 days_of_the_week_list = ["월", "화", "수", "목", "금", "토", "일"]
 
 
-@application.route("/day", methods=["POST"])
+@app.route("/day", methods=["POST"])
 def day_of_the_week():
     # 카카오톡 서버에서 스킬이 보내는 요청의 데이터
     request_data = json.loads(request.get_data(), encoding="utf-8")
@@ -40,7 +40,3 @@ def day_of_the_week():
         }
     }
     return jsonify(response)
-
-
-if __name__ == "__main__":
-    application.run(host="0.0.0.0", port=int(sys.argv[1]), debug=True)
