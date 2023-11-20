@@ -20,7 +20,7 @@ def get_question():
     a[request_data['userRequest']['user']['id']] = '아직 AI가 처리중이에요'
     try:
         api = requests.post('https://api.asyncia.com/v1/api/request/', json={
-            "apikey": "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",
+            "apikey": OPENAI_API,
             "messages" :[{"role": "user", "content": request_data['action']['params']['question']}],
             "userdata": [["user", request_data['userRequest']['user']['id']]]},
             headers={"apikey":"A0.cd6a467e-67e7-47a7-87fa-6524ac0fee92._lE5wodHE3xjzO0EMcoS8PV1732wXG-lvg"}, timeout=0.3)
